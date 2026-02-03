@@ -1,0 +1,546 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "collapsed_sections": [
+        "km7kPsuaEeYJ",
+        "iGfbXnrVd6zn"
+      ],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/thomaslu678/gee-test/blob/main/clean/ee_task_lst_all_points\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# NOTE: Requires points.csv (list of points within digitized buffer zone)"
+      ],
+      "metadata": {
+        "id": "CzLf6GZ-Pk2Z"
+      }
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "krsLgVBYZw_A"
+      },
+      "source": [
+        "#@title Copyright 2019 Google LLC. { display-mode: \"form\" }\n",
+        "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+        "# you may not use this file except in compliance with the License.\n",
+        "# You may obtain a copy of the License at\n",
+        "#\n",
+        "# https://www.apache.org/licenses/LICENSE-2.0\n",
+        "#\n",
+        "# Unless required by applicable law or agreed to in writing, software\n",
+        "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+        "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+        "# See the License for the specific language governing permissions and\n",
+        "# limitations under the License."
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aV1xZ1CPi3Nw"
+      },
+      "source": [
+        "<table class=\"ee-notebook-buttons\" align=\"left\"><td>\n",
+        "<a target=\"_blank\"  href=\"http://colab.research.google.com/github/google/earthengine-community/blob/master/guides/linked/ee-api-colab-setup.ipynb\">\n",
+        "    <img src=\"https://www.tensorflow.org/images/colab_logo_32px.png\" /> Run in Google Colab</a>\n",
+        "</td><td>\n",
+        "<a target=\"_blank\"  href=\"https://github.com/google/earthengine-community/blob/master/guides/linked/ee-api-colab-setup.ipynb\"><img width=32px src=\"https://www.tensorflow.org/images/GitHub-Mark-32px.png\" /> View source on GitHub</a></td></table>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LAZiVi13zTE7"
+      },
+      "source": [
+        "# Earth Engine Python API Colab Setup\n",
+        "\n",
+        "This notebook demonstrates how to setup the Earth Engine Python API in Colab and provides several examples of how to print and visualize Earth Engine processed data."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "a69CuP5Q6OI7"
+      },
+      "source": [
+        "## Import API and get credentials\n",
+        "\n",
+        "The Earth Engine API is installed by default in Google Colaboratory so requires only importing and authenticating. These steps must be completed for each new Colab session, if you restart your Colab kernel, or if your Colab virtual machine is recycled due to inactivity."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SNh-QBc36Mvk"
+      },
+      "source": [
+        "### Import the API\n",
+        "\n",
+        "Run the following cell to import the API into your session."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "65RChERMzQHZ"
+      },
+      "source": [
+        "import ee"
+      ],
+      "execution_count": 1,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "s-dN42MTzg-w"
+      },
+      "source": [
+        "### Authenticate and initialize\n",
+        "\n",
+        "Run the `ee.Authenticate` function to authenticate your access to Earth Engine servers and `ee.Initialize` to initialize it. Upon running the following cell you'll be asked to grant Earth Engine access to your Google account. Follow the instructions printed to the cell."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NMp9Ei9b0XXL"
+      },
+      "source": [
+        "# Trigger the authentication flow.\n",
+        "ee.Authenticate()\n",
+        "\n",
+        "# Initialize the library.\n",
+        "ee.Initialize(project='gee-481701')"
+      ],
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8I_Fr0L5AFmu"
+      },
+      "source": [
+        "## Test the API\n",
+        "\n",
+        "Test the API by printing the elevation of Mount Everest."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "v7pD6pDOAhOW",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "e73bc9c7-04e8-42f6-e4aa-5d0a57c2c745"
+      },
+      "source": [
+        "\n",
+        "# Print the elevation of Mount Everest.\n",
+        "dem = ee.Image('USGS/SRTMGL1_003')\n",
+        "xy = ee.Geometry.Point([86.9250, 27.9881])\n",
+        "elev = dem.sample(xy, 30).first().get('elevation').getInfo()\n",
+        "print('Mount Everest elevation (m):', elev)"
+      ],
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mount Everest elevation (m): 8729\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Define Areas of Interest"
+      ],
+      "metadata": {
+        "id": "km7kPsuaEeYJ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "from scipy.optimize import curve_fit\n",
+        "import matplotlib.pyplot as plt\n",
+        "import matplotlib.dates as mdates\n",
+        "from datetime import datetime\n",
+        "from datetime import timedelta\n",
+        "import scipy.stats as stats\n",
+        "import rasterio\n",
+        "from rasterio.transform import from_origin\n",
+        "from rasterio.features import rasterize\n",
+        "import geopandas as gpd\n",
+        "from shapely.geometry import Point\n",
+        "import requests"
+      ],
+      "metadata": {
+        "id": "o11tSpUGE8Nq"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "landsat_collections = {\n",
+        "    \"L4\": (\"LANDSAT/LT04/C02/T1_L2\", \"ST_B6\"),\n",
+        "    \"L5\": (\"LANDSAT/LT05/C02/T1_L2\", \"ST_B6\"),\n",
+        "    \"L7\": (\"LANDSAT/LE07/C02/T1_L2\", \"ST_B6\"),\n",
+        "    \"L8\": (\"LANDSAT/LC08/C02/T1_L2\", \"ST_B10\"),\n",
+        "    \"L9\": (\"LANDSAT/LC09/C02/T1_L2\", \"ST_B10\"),\n",
+        "}"
+      ],
+      "metadata": {
+        "id": "gu-GD1KjzO_v"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Functions"
+      ],
+      "metadata": {
+        "id": "iGfbXnrVd6zn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def mask_qa_pixel(img: ee.Image):\n",
+        "    # QA_PIXEL is the name of the fetched file that provides info\n",
+        "    # about pixel quality assurance\n",
+        "    qa = img.select(\"QA_PIXEL\")\n",
+        "\n",
+        "    # Fetch bits (0/1) describing if an environmental condition\n",
+        "    # is present\n",
+        "    cloud        = qa.bitwiseAnd(1 << 3).neq(0)\n",
+        "    cloud_shadow = qa.bitwiseAnd(1 << 4).neq(0)\n",
+        "    snow         = qa.bitwiseAnd(1 << 5).neq(0)\n",
+        "    cirrus       = qa.bitwiseAnd(1 << 2).neq(0)\n",
+        "\n",
+        "    mask = (\n",
+        "        # Or condition for all bad conditions\n",
+        "        cloud\n",
+        "        .Or(cloud_shadow)\n",
+        "        .Or(snow)\n",
+        "        .Or(cirrus)\n",
+        "\n",
+        "        # Not flips the conditions so any remaining pixels\n",
+        "        # have none of the conditions, and are \"good\" quality.\n",
+        "        .Not()\n",
+        "    )\n",
+        "\n",
+        "    # Apply the mask to the input image\n",
+        "    return img.updateMask(mask)"
+      ],
+      "metadata": {
+        "id": "27vz9ubfLlhZ"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def scale_lst(img, band):\n",
+        "    lst = (\n",
+        "\n",
+        "        # Select the correct band, either ST_B6 or ST_B10\n",
+        "        img.select(band)\n",
+        "        .multiply(0.00341802)\n",
+        "        .add(149.0)\n",
+        "        .rename(\"LST_K\")\n",
+        "    )\n",
+        "\n",
+        "    # Add a new band to the original image, with the scaled LST\n",
+        "    return img.addBands(lst)"
+      ],
+      "metadata": {
+        "id": "WnU2sb1CLnc1"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Loop over all points"
+      ],
+      "metadata": {
+        "id": "pvQMlGFo17Zy"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "input_df = pd.read_csv('/content/sample_data/points.csv')"
+      ],
+      "metadata": {
+        "id": "ZqZzFdO1POJZ"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def df_to_points_fc(df):\n",
+        "    feats = []\n",
+        "    for _, r in df.iterrows():\n",
+        "        geom = ee.Geometry.Point(float(r[\"long\"]), float(r[\"lat\"]))\n",
+        "        feats.append(\n",
+        "            ee.Feature(geom, {\n",
+        "                \"lat\": float(r[\"lat\"]),\n",
+        "                \"long\": float(r[\"long\"]),\n",
+        "                \"distance\": float(r[\"distance\"])\n",
+        "            })\n",
+        "        )\n",
+        "    return ee.FeatureCollection(feats)\n",
+        "\n",
+        "points_fc = df_to_points_fc(input_df)"
+      ],
+      "metadata": {
+        "id": "UQGuSeJ0p9cZ"
+      },
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "city_geom = points_fc.geometry().convexHull(maxError=1)"
+      ],
+      "metadata": {
+        "id": "aDpIna7gsR9M"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def sample_landsat_collection(collection_id, band, mission, city_geom, points_fc):\n",
+        "    col = (\n",
+        "        ee.ImageCollection(collection_id)\n",
+        "        .filterBounds(city_geom)     # ONE image per city per overpass\n",
+        "        .map(mask_qa_pixel)\n",
+        "        .map(lambda img: scale_lst(img, band))\n",
+        "    )\n",
+        "\n",
+        "    def per_image(img):\n",
+        "        samples = img.select(\"LST_K\").sampleRegions(\n",
+        "            collection=points_fc,\n",
+        "            geometries=False,\n",
+        "            scale=None    # native projection → avoids EPSG errors\n",
+        "        )\n",
+        "\n",
+        "        return samples.map(lambda f: f.set({\n",
+        "            \"mission\": mission,\n",
+        "            \"image_id\": img.id(),\n",
+        "            \"time\": ee.Date(img.get(\"system:time_start\"))\n",
+        "                        .format(\"YYYY-MM-dd HH:mm:ss\")\n",
+        "        }))\n",
+        "\n",
+        "    return col.map(per_image).flatten()"
+      ],
+      "metadata": {
+        "id": "-mHDTHSQro2t"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "collections = []\n",
+        "\n",
+        "for mission, (collection_id, band) in landsat_collections.items():\n",
+        "    fc = sample_landsat_collection(\n",
+        "        collection_id, band, mission, city_geom, points_fc\n",
+        "    )\n",
+        "    collections.append(fc)\n",
+        "\n",
+        "final_fc = ee.FeatureCollection(collections).flatten()"
+      ],
+      "metadata": {
+        "id": "yxW3zORfrum4"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ee.batch.Export.table.toDrive(\n",
+        "    collection=final_fc,\n",
+        "    description=\"landsat_lst_city_points\",\n",
+        "    fileFormat=\"CSV\"\n",
+        ").start()"
+      ],
+      "metadata": {
+        "id": "5gCMFWwJsbD3"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ee.data.getTaskStatus(\"NJZL3G7HOT3CED4GVMESTRNY\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sJAO-j_HsuUG",
+        "outputId": "56a31059-9918-4a68-f3b3-6ac8a46fa2fd",
+        "collapsed": true
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[{'state': 'COMPLETED',\n",
+              "  'description': 'landsat_lst_city_points',\n",
+              "  'priority': 100,\n",
+              "  'creation_timestamp_ms': 1769370480688,\n",
+              "  'update_timestamp_ms': 1769376404579,\n",
+              "  'start_timestamp_ms': 1769370490387,\n",
+              "  'task_type': 'EXPORT_FEATURES',\n",
+              "  'destination_uris': ['https://drive.google.com/'],\n",
+              "  'attempt': 1,\n",
+              "  'batch_eecu_usage_seconds': 3760.7265625,\n",
+              "  'id': 'NJZL3G7HOT3CED4GVMESTRNY',\n",
+              "  'name': 'projects/gee-481701/operations/NJZL3G7HOT3CED4GVMESTRNY'}]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 16
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ee.data.listOperations()\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-oqk-QaS0pSf",
+        "outputId": "657784c8-b8fc-402f-d249-198d7d3f5bed",
+        "collapsed": true
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[{'name': 'projects/gee-481701/operations/NJZL3G7HOT3CED4GVMESTRNY',\n",
+              "  'metadata': {'@type': 'type.googleapis.com/google.earthengine.v1alpha.OperationMetadata',\n",
+              "   'state': 'SUCCEEDED',\n",
+              "   'description': 'landsat_lst_city_points',\n",
+              "   'priority': 100,\n",
+              "   'createTime': '2026-01-25T19:48:00.688008Z',\n",
+              "   'updateTime': '2026-01-25T21:26:44.579229Z',\n",
+              "   'startTime': '2026-01-25T19:48:10.387269Z',\n",
+              "   'endTime': '2026-01-25T21:26:44.579229Z',\n",
+              "   'type': 'EXPORT_FEATURES',\n",
+              "   'destinationUris': ['https://drive.google.com/'],\n",
+              "   'attempt': 1,\n",
+              "   'batchEecuUsageSeconds': 3760.7265625},\n",
+              "  'done': True,\n",
+              "  'response': {'@type': 'type.googleapis.com/google.protobuf.Empty'}},\n",
+              " {'name': 'projects/gee-481701/operations/JWXCXYBEDBAQZOGY2ZZSD7N4',\n",
+              "  'metadata': {'@type': 'type.googleapis.com/google.earthengine.v1alpha.OperationMetadata',\n",
+              "   'state': 'FAILED',\n",
+              "   'description': 'landsat_lst_all_points',\n",
+              "   'priority': 100,\n",
+              "   'createTime': '2026-01-25T07:10:07.500586Z',\n",
+              "   'updateTime': '2026-01-25T07:11:35.224310Z',\n",
+              "   'startTime': '2026-01-25T07:10:20.657698Z',\n",
+              "   'endTime': '2026-01-25T07:11:35.224310Z',\n",
+              "   'type': 'EXPORT_FEATURES',\n",
+              "   'attempt': 1,\n",
+              "   'batchEecuUsageSeconds': 95.500656127},\n",
+              "  'done': True,\n",
+              "  'error': {'code': 3,\n",
+              "   'message': 'Unable to compute error margin in invalid area of projection (EPSG:32620: affine [30.0, 0.0, 578685.0, 0.0, -30.0, 1861515.0] in Rectangle(2682159.0,-1500161.0, 2683181.0,-1499144.0)).'}},\n",
+              " {'name': 'projects/gee-481701/operations/SPYCHORQANELZNXZJWY4QDXP',\n",
+              "  'metadata': {'@type': 'type.googleapis.com/google.earthengine.v1alpha.OperationMetadata',\n",
+              "   'state': 'FAILED',\n",
+              "   'description': 'landsat_lst_all_points',\n",
+              "   'priority': 100,\n",
+              "   'createTime': '2026-01-25T07:03:35.901523Z',\n",
+              "   'updateTime': '2026-01-25T07:04:30.655383Z',\n",
+              "   'startTime': '2026-01-25T07:03:40.797277Z',\n",
+              "   'endTime': '2026-01-25T07:04:30.655383Z',\n",
+              "   'type': 'EXPORT_FEATURES',\n",
+              "   'attempt': 1,\n",
+              "   'batchEecuUsageSeconds': 76.663887023},\n",
+              "  'done': True,\n",
+              "  'error': {'code': 3,\n",
+              "   'message': 'Unable to compute error margin in invalid area of projection (EPSG:32620: affine [30.0, 0.0, 413685.0, 0.0, -30.0, 1062315.0] in Rectangle(2683566.0,-1522706.0, 2684521.0,-1521736.0)).'}},\n",
+              " {'name': 'projects/gee-481701/operations/FOVMW5ROIGQV2OJVDVTM6FHX',\n",
+              "  'metadata': {'@type': 'type.googleapis.com/google.earthengine.v1alpha.OperationMetadata',\n",
+              "   'state': 'FAILED',\n",
+              "   'description': 'landsat_lst_all_points',\n",
+              "   'priority': 100,\n",
+              "   'createTime': '2026-01-25T07:01:20.471332Z',\n",
+              "   'updateTime': '2026-01-25T07:01:33.723687Z',\n",
+              "   'startTime': '2026-01-25T07:01:31.516020Z',\n",
+              "   'endTime': '2026-01-25T07:01:33.723687Z',\n",
+              "   'type': 'EXPORT_FEATURES',\n",
+              "   'attempt': 1,\n",
+              "   'batchEecuUsageSeconds': 8.069586753},\n",
+              "  'done': True,\n",
+              "  'error': {'code': 3,\n",
+              "   'message': \"Error in map(ID=LT04_001027_19821202):\\nImage.select: Band pattern 'LST' did not match any bands. Available bands: [SR_B1, SR_B2, SR_B3, SR_B4, SR_B5, SR_B7, SR_ATMOS_OPACITY, SR_CLOUD_QA, ST_B6, ST_ATRAN, ST_CDIST, ST_DRAD, ST_EMIS, ST_EMSD, ST_QA, ST_TRAD, ST_URAD, QA_PIXEL, QA_RADSAT, LST_K]\"}}]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 17
+        }
+      ]
+    }
+  ]
+}
